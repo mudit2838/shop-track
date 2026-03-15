@@ -1,12 +1,32 @@
-import { Link, useLocation } from "react-router-dom";
-import { FaStore, FaBox, FaChartBar, FaShoppingCart, FaCashRegister, FaBars } from "react-icons/fa";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import {
+FaBox,
+FaChartBar,
+FaShoppingCart,
+FaCashRegister,
+FaBars,
+FaSignOutAlt,
+FaWarehouse,
+FaMoneyBillWave
+} from "react-icons/fa";
+
 import { motion } from "framer-motion";
 import { useState } from "react";
 
-function Sidebar() {
+function Sidebar(){
 
 const location = useLocation();
+const navigate = useNavigate();
+
 const [open,setOpen] = useState(false);
+
+const logout = ()=>{
+
+localStorage.removeItem("token");
+navigate("/");
+
+};
+
 
 const menu = [
 
@@ -14,12 +34,6 @@ const menu = [
 name:"Dashboard",
 path:"/dashboard",
 icon:<FaChartBar/>
-},
-
-{
-name:"Shops",
-path:"/shops",
-icon:<FaStore/>
 },
 
 {
@@ -43,7 +57,13 @@ icon:<FaCashRegister/>
 {
 name:"Inventory",
 path:"/inventory",
-icon:"📦"
+icon:<FaWarehouse/>
+},
+
+{
+name:"Profit",
+path:"/profit",
+icon:<FaMoneyBillWave/>
 }
 
 ];
@@ -68,7 +88,9 @@ return(
 <motion.div
 initial={{x:-200}}
 animate={{x:0}}
-className={`fixed md:static top-0 left-0 h-screen w-64 bg-gray-900 text-white flex flex-col transition-all ${open ? "block":"hidden md:flex"}`}
+className={`fixed md:static top-0 left-0 h-screen w-64 bg-gray-900 text-white flex flex-col transition-all ${
+open ? "block":"hidden md:flex"
+}`}
 >
 
 {/* Logo */}
@@ -103,6 +125,24 @@ location.pathname === item.path
 ))}
 
 </nav>
+
+
+{/* Logout Button */}
+
+<div className="p-4 border-t border-gray-700">
+
+<button
+onClick={logout}
+className="flex items-center gap-3 w-full p-3 rounded-lg hover:bg-red-600 transition"
+>
+
+<FaSignOutAlt/>
+
+<span>Logout</span>
+
+</button>
+
+</div>
 
 </motion.div>
 

@@ -3,49 +3,47 @@ const Product = require("../models/Product");
 
 // ADD PRODUCT
 exports.addProduct = async (req,res)=>{
-    
-    try{
 
-        const {shopId,productName,category,price} = req.body;
+try{
 
-        const product = await Product.create({
-            shopId,
-            productName,
-            category,
-            price
-        });
+const {productName,category} = req.body;
 
-        res.status(201).json({
-            message:"Product added successfully",
-            product
-        });
+const product = await Product.create({
 
-    }
-    catch(error){
+productName,
+category,
+shopId:req.user.shopId
 
-        res.status(500).json({error:error.message});
+});
 
-    }
+res.json(product);
+
+}catch(err){
+
+res.status(500).json({error:err.message});
+
+}
 
 };
 
 
 
-// GET PRODUCTS BY SHOP
+// GET PRODUCTS
 exports.getProducts = async (req,res)=>{
 
-    try{
+try{
 
-        const products = await Product.find({shopId:req.params.shopId});
+const products = await Product.find({
+shopId:req.user.shopId
+});
 
-        res.json(products);
+res.json(products);
 
-    }
-    catch(error){
+}catch(err){
 
-        res.status(500).json({error:error.message});
+res.status(500).json({error:err.message});
 
-    }
+}
 
 };
 
@@ -54,17 +52,16 @@ exports.getProducts = async (req,res)=>{
 // DELETE PRODUCT
 exports.deleteProduct = async (req,res)=>{
 
-    try{
+try{
 
-        await Product.findByIdAndDelete(req.params.id);
+await Product.findByIdAndDelete(req.params.id);
 
-        res.json({message:"Product deleted"});
+res.json({message:"Product deleted"});
 
-    }
-    catch(error){
+}catch(err){
 
-        res.status(500).json({error:error.message});
+res.status(500).json({error:err.message});
 
-    }
+}
 
 };

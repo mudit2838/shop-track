@@ -2,48 +2,54 @@ const Purchase = require("../models/Purchase");
 const Inventory = require("../models/Inventory");
 
 // ADD PURCHASE
-exports.addPurchase = async (req,res)=>{
+exports.addPurchase = async (req, res) => {
 
-    try{
+try {
 
-        const {shopId,productId,quantity,price} = req.body;
+const { productId, quantity, price } = req.body;
 
-        const purchase = await Purchase.create({
-            shopId,
-            productId,
-            quantity,
-            price
-        });
+const qty = Number(quantity);
+const costPrice = Number(price);
 
-        // inventory update
-        let inventory = await Inventory.findOne({shopId,productId});
+// create purchase record
+await Purchase.create({
+productId,
+quantity: qty,
+price: costPrice,
+shopId: req.user.shopId
+});
 
-        if(!inventory){
+// check inventory
+let item = await Inventory.findOne({
+productId,
+shopId: req.user.shopId
+});
 
-            inventory = await Inventory.create({
-                shopId,
-                productId,
-                stock:quantity
-            });
+if (item) {
 
-        }else{
+item.stock += qty;
+await item.save();
 
-            inventory.stock += quantity;
-            await inventory.save();
+} else {
 
-        }
+await Inventory.create({
+productId,
+shopId: req.user.shopId,
+stock: qty
+});
 
-        res.status(201).json({
-            message:"Purchase added",
-            purchase,
-            inventory
-        });
+}
 
-    }
-    catch(error){
+res.json({
+message: "Purchase added successfully"
+});
 
-        res.status(500).json({error:error.message});
+} catch (error) {
 
-    }
+res.status(500).json({
+error: error.message
+});
+
+}
 
 };

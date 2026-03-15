@@ -1,11 +1,11 @@
 const express = require("express");
 const router = express.Router();
 
-const {getInventory} = require("../controllers/inventoryController");
-
+const { getInventory } = require("../controllers/inventoryController");
 const authMiddleware = require("../middleware/authMiddleware");
 
 
-router.get("/:shopId",authMiddleware,getInventory);
+// GET INVENTORY OF LOGGED SHOP
+router.get("/", authMiddleware, getInventory);
 
 module.exports = router;

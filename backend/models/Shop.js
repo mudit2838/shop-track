@@ -1,22 +1,26 @@
 const mongoose = require("mongoose");
 
 const shopSchema = new mongoose.Schema({
+
   shopName:{
     type:String,
-    required:true
+    required:true,
+    trim:true
   },
+
   owner:{
     type:mongoose.Schema.Types.ObjectId,
     ref:"User",
     required:true
   },
+
   address:{
-    type:String
-  },
-  createdAt:{
-    type:Date,
-    default:Date.now
+    type:String,
+    trim:true
   }
+
+},{
+  timestamps:true
 });
 
 module.exports = mongoose.model("Shop",shopSchema);

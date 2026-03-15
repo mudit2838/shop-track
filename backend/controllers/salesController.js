@@ -1,44 +1,61 @@
 const Sale = require("../models/Sale");
 const Inventory = require("../models/Inventory");
 
-exports.addSale = async (req,res)=>{
+exports.addSale = async (req, res) => {
 
-    try{
+try {
 
-        const {shopId,productId,quantity,price} = req.body;
+const { productId, quantity, price } = req.body;
 
-        const inventory = await Inventory.findOne({shopId,productId});
+const qty = Number(quantity);
+const sellPrice = Number(price);
 
-        if(!inventory || inventory.stock < quantity){
+if (!productId || !qty || !sellPrice) {
+return res.status(400).json({
+message: "All fields required"
+});
+}
 
-            return res.status(400).json({
-                message:"Not enough stock"
-            });
+// find inventory
+const item = await Inventory.findOne({
+productId,
+shopId: req.user.shopId
+});
 
-        }
+if (!item) {
+return res.status(400).json({
+message: "Product not found in inventory"
+});
+}
 
-        const sale = await Sale.create({
-            shopId,
-            productId,
-            quantity,
-            price
-        });
+if (item.stock < qty) {
+return res.status(400).json({
+message: "Not enough stock"
+});
+}
 
-        inventory.stock -= quantity;
+// decrease stock
+item.stock -= qty;
+await item.save();
 
-        await inventory.save();
+// create sale
+await Sale.create({
+productId,
+quantity: qty,
+price: sellPrice,
+shopId: req.user.shopId
+});
 
-        res.json({
-            message:"Sale recorded",
-            sale,
-            inventory
-        });
+res.json({
+message: "Sale recorded successfully"
+});
 
-    }
-    catch(error){
+} catch (error) {
 
-        res.status(500).json({error:error.message});
+res.status(500).json({
+error: error.message
+});
 
-    }
+}
 
 };

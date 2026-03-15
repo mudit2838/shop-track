@@ -1,25 +1,17 @@
 const express = require("express");
 const router = express.Router();
 
-const {
-  getDashboardStats,
-  getTopProducts,
-  getLowStock
-} = require("../controllers/dashboardController");
+const dashboardController = require("../controllers/dashboardController");
 
 const authMiddleware = require("../middleware/authMiddleware");
 
+// Dashboard stats
+router.get("/", authMiddleware, dashboardController.getDashboardStats);
 
-// Dashboard main stats
-router.get("/", authMiddleware, getDashboardStats);
-
-
-// Top selling products
-router.get("/top-products", authMiddleware, getTopProducts);
-
+// Top products
+router.get("/top-products", authMiddleware, dashboardController.getTopProducts);
 
 // Low stock alerts
-router.get("/low-stock", authMiddleware, getLowStock);
-
+router.get("/low-stock", authMiddleware, dashboardController.getLowStock);
 
 module.exports = router;

@@ -2,68 +2,126 @@ const User = require("../models/User");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
-// REGISTER
-exports.registerUser = async (req, res) => {
-  try {
 
-    const { name, email, password } = req.body;
+// REGISTER SHOP
+exports.register = async(req,res)=>{
 
-    const userExists = await User.findOne({ email });
+try{
 
-    if (userExists) {
-      return res.status(400).json({ message: "User already exists" });
-    }
+const {shopName,email,password} = req.body;
 
-    const hashedPassword = await bcrypt.hash(password, 10);
+if(!shopName || !email || !password){
+return res.status(400).json({
+message:"All fields are required"
+});
+}
 
-    const user = await User.create({
-      name,
-      email,
-      password: hashedPassword
-    });
+// check if email already exists
+const existingUser = await User.findOne({email});
 
-    res.status(201).json({
-      message: "User registered successfully",
-      user
-    });
+if(existingUser){
+return res.status(400).json({
+message:"Email already registered"
+});
+}
 
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
+// hash password
+const hashedPassword = await bcrypt.hash(password,10);
+
+// create user
+const user = await User.create({
+shopName,
+email,
+password:hashedPassword
+});
+
+res.status(201).json({
+message:"Shop registered successfully"
+});
+
+}catch(err){
+
+res.status(500).json({error:err.message});
+
+}
+
 };
 
 
-// LOGIN
-exports.loginUser = async (req, res) => {
-  try {
 
-    const { email, password } = req.body;
 
-    const user = await User.findOne({ email });
+// LOGIN SHOP
+exports.login = async(req,res)=>{
 
-    if (!user) {
-      return res.status(400).json({ message: "Invalid Email" });
-    }
+try{
 
-    const isMatch = await bcrypt.compare(password, user.password);
+const {email,password} = req.body;
 
-    if (!isMatch) {
-      return res.status(400).json({ message: "Invalid Password" });
-    }
+if(!email || !password){
+return res.status(400).json({
+message:"Email and password required"
+});
+}
 
-    const token = jwt.sign(
-      { id: user._id },
-      process.env.JWT_SECRET,
-      { expiresIn: "7d" }
-    );
+// find user
+const user = await User.findOne({email});
 
-    res.json({
-      message: "Login successful",
-      token,
-      user
-    });
+if(!user){
+return res.status(400).json({
+message:"User not found"
+});
+}
 
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
+// compare password
+const isMatch = await bcrypt.compare(password,user.password);
+
+if(!isMatch){
+return res.status(400).json({
+message:"Invalid password"
+});
+}
+
+// generate token
+const token = jwt.sign(
+{
+userId:user._id,
+shopId:user._id,
+shopName:user.shopName
+},
+process.env.JWT_SECRET,
+{expiresIn:"7d"}
+);
+
+res.json({
+token,
+shopName:user.shopName
+});
+
+}catch(err){
+
+res.status(500).json({error:err.message});
+
+}
+
+};
+
+
+
+
+// GET CURRENT SHOP INFO
+exports.getMe = async(req,res)=>{
+
+try{
+
+res.json({
+shopId:req.user.shopId,
+shopName:req.user.shopName
+});
+
+}catch(err){
+
+res.status(500).json({error:err.message});
+
+}
+
 };

@@ -12,7 +12,7 @@ const authMiddleware = require("../middleware/authMiddleware");
 
 router.post("/",authMiddleware,addProduct);
 
-router.get("/:shopId",authMiddleware,getProducts);
+router.get("/",authMiddleware,getProducts);
 
 router.delete("/:id",authMiddleware,deleteProduct);
 

@@ -1,131 +1,78 @@
 import { useEffect, useState } from "react";
 import Sidebar from "../components/Sidebar";
 import API from "../services/api";
-import { motion } from "framer-motion";
-import { FaCashRegister } from "react-icons/fa";
 
 function Sales(){
 
-const [shops,setShops] = useState([]);
 const [products,setProducts] = useState([]);
-
-const [shopId,setShopId] = useState("");
 const [productId,setProductId] = useState("");
 const [quantity,setQuantity] = useState("");
 const [price,setPrice] = useState("");
 
 useEffect(()=>{
-fetchShops();
+fetchProducts();
 },[]);
 
-const fetchShops = async()=>{
-try{
-const res = await API.get("/shops");
-setShops(res.data);
-}catch(err){
-console.error(err);
-}
-};
-
-const fetchProducts = async(id)=>{
-try{
-setShopId(id);
-const res = await API.get(`/products/${id}`);
+const fetchProducts = async()=>{
+const res = await API.get("/products");
 setProducts(res.data);
-}catch(err){
-console.error(err);
-}
 };
 
 const addSale = async()=>{
 
-try{
-
-if(!shopId || !productId){
-alert("Please select shop and product");
+if(!productId || !quantity || !price){
+alert("Please fill all fields");
 return;
 }
 
-await API.post("/sales",{
-shopId,
-productId,
-quantity,
-price
-});
+await API.post("/sales",{ productId, quantity, price });
 
+alert("Sale recorded");
+
+setProductId("");
 setQuantity("");
 setPrice("");
-
-alert("Sale recorded successfully");
-
-}catch(err){
-console.error(err);
-alert("Sale failed");
-}
 
 };
 
 return(
 
-<div className="flex bg-gray-100 min-h-screen">
+<div className="flex bg-slate-50 min-h-screen">
 
 <Sidebar/>
 
-<div className="flex-1 p-6 md:p-10">
+<div className="p-10 w-full">
 
-{/* Page Title */}
+{/* Header */}
 
-<motion.div
-initial={{opacity:0,y:-20}}
-animate={{opacity:1,y:0}}
-className="flex items-center gap-3 mb-6"
->
+<div className="mb-8">
 
-<FaCashRegister className="text-red-600 text-2xl"/>
-
-<h1 className="text-3xl font-bold">
+<h1 className="text-3xl font-semibold text-gray-800">
 Sell Product
 </h1>
 
-</motion.div>
+<p className="text-gray-500 mt-1">
+Record product sales from inventory
+</p>
 
-{/* Sales Form */}
+</div>
 
-<motion.div
-initial={{opacity:0,y:20}}
-animate={{opacity:1,y:0}}
-className="bg-white rounded-xl shadow p-6 max-w-xl"
->
 
-<div className="grid gap-4">
+{/* Form Card */}
 
-{/* Shop Select */}
+<div className="bg-white rounded-xl shadow-sm border border-gray-100 p-8 max-w-lg">
 
-<select
-className="border rounded-lg p-3 focus:ring-2 focus:ring-red-500 outline-none"
-onChange={(e)=>fetchProducts(e.target.value)}
->
-
-<option>Select Shop</option>
-
-{shops.map((shop)=>(
-<option key={shop._id} value={shop._id}>
-{shop.shopName}
-</option>
-))}
-
-</select>
-
-{/* Product Select */}
+<div className="space-y-5">
 
 <select
-className="border rounded-lg p-3 focus:ring-2 focus:ring-red-500 outline-none"
+value={productId}
 onChange={(e)=>setProductId(e.target.value)}
+className="w-full border border-gray-200 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 outline-none"
 >
 
-<option>Select Product</option>
+<option value="">Select Product</option>
 
-{products.map((product)=>(
+{products.map(product=>(
 <option key={product._id} value={product._id}>
 {product.productName}
 </option>
@@ -133,36 +80,37 @@ onChange={(e)=>setProductId(e.target.value)}
 
 </select>
 
-{/* Quantity */}
 
 <input
+type="number"
 value={quantity}
 placeholder="Quantity"
-className="border rounded-lg p-3"
 onChange={(e)=>setQuantity(e.target.value)}
+className="w-full border border-gray-200 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 outline-none"
 />
 
-{/* Price */}
 
 <input
+type="number"
 value={price}
-placeholder="Price"
-className="border rounded-lg p-3"
+placeholder="Selling Price"
 onChange={(e)=>setPrice(e.target.value)}
+className="w-full border border-gray-200 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 outline-none"
 />
 
-{/* Button */}
 
 <button
 onClick={addSale}
-className="bg-red-600 hover:bg-red-700 text-white py-3 rounded-lg transition"
+className="bg-red-500 hover:bg-red-600 transition text-white px-6 py-3 rounded-lg font-medium"
 >
+
 Sell Product
+
 </button>
 
 </div>
 
-</motion.div>
+</div>
 
 </div>
 

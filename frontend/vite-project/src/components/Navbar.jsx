@@ -1,14 +1,41 @@
 import { FaBars, FaUserCircle, FaSignOutAlt } from "react-icons/fa";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import API from "../services/api";
 
 function Navbar({toggleSidebar}){
 
 const navigate = useNavigate();
 
+const [shopName,setShopName] = useState("");
+
+useEffect(()=>{
+
+fetchUser();
+
+},[]);
+
+const fetchUser = async()=>{
+
+try{
+
+const res = await API.get("/auth/me");
+
+setShopName(res.data.shopName);
+
+}catch(err){
+
+console.log(err);
+
+}
+
+};
+
 const handleLogout = ()=>{
 
 localStorage.removeItem("token");
+
 navigate("/");
 
 };
@@ -49,8 +76,10 @@ Inventory Dashboard
 
 <FaUserCircle className="text-2xl"/>
 
-<span className="hidden md:block">
-Admin
+<span className="hidden md:block font-medium">
+
+{shopName || "Shop"}
+
 </span>
 
 </div>

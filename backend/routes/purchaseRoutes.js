@@ -1,10 +1,15 @@
 const express = require("express");
 const router = express.Router();
 
-const {addPurchase} = require("../controllers/purchaseController");
-
+const purchaseController = require("../controllers/purchaseController");
 const authMiddleware = require("../middleware/authMiddleware");
 
-router.post("/",authMiddleware,addPurchase);
+
+// all purchase routes require login
+router.use(authMiddleware);
+
+
+// add purchase
+router.post("/", purchaseController.addPurchase);
 
 module.exports = router;

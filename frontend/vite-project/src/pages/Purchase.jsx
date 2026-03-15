@@ -1,132 +1,78 @@
 import { useEffect, useState } from "react";
 import Sidebar from "../components/Sidebar";
 import API from "../services/api";
-import { motion } from "framer-motion";
-import { FaShoppingCart } from "react-icons/fa";
 
 function Purchase(){
 
-const [shops,setShops] = useState([]);
 const [products,setProducts] = useState([]);
-
-const [shopId,setShopId] = useState("");
 const [productId,setProductId] = useState("");
 const [quantity,setQuantity] = useState("");
 const [price,setPrice] = useState("");
 
 useEffect(()=>{
-fetchShops();
+fetchProducts();
 },[]);
 
-const fetchShops = async()=>{
-try{
-const res = await API.get("/shops");
-setShops(res.data);
-}catch(err){
-console.error(err);
-}
-};
-
-const fetchProducts = async(id)=>{
-try{
-setShopId(id);
-const res = await API.get(`/products/${id}`);
+const fetchProducts = async()=>{
+const res = await API.get("/products");
 setProducts(res.data);
-}catch(err){
-console.error(err);
-}
 };
 
 const addPurchase = async()=>{
 
-try{
-
-if(!shopId || !productId){
-alert("Please select shop and product");
+if(!productId || !quantity || !price){
+alert("Please fill all fields");
 return;
 }
 
-await API.post("/purchase",{
-shopId,
-productId,
-quantity,
-price
-});
+await API.post("/purchase",{ productId, quantity, price });
 
+alert("Purchase added");
+
+setProductId("");
 setQuantity("");
 setPrice("");
-
-alert("Purchase added successfully");
-
-}catch(err){
-console.error(err);
-}
 
 };
 
 return(
 
-<div className="flex bg-gray-100 min-h-screen">
+<div className="flex bg-slate-50 min-h-screen">
 
 <Sidebar/>
 
-<div className="flex-1 p-6 md:p-10">
+<div className="p-10 w-full">
 
-{/* Page Title */}
+{/* Header */}
 
-<motion.div
-initial={{opacity:0,y:-20}}
-animate={{opacity:1,y:0}}
-className="flex items-center gap-3 mb-6"
->
+<div className="mb-8">
 
-<FaShoppingCart className="text-green-600 text-2xl"/>
-
-<h1 className="text-3xl font-bold">
+<h1 className="text-3xl font-semibold text-gray-800">
 Purchase Product
 </h1>
 
-</motion.div>
+<p className="text-gray-500 mt-1">
+Add purchased items to your inventory
+</p>
+
+</div>
 
 
-{/* Purchase Form */}
+{/* Form Card */}
 
-<motion.div
-initial={{opacity:0,y:20}}
-animate={{opacity:1,y:0}}
-className="bg-white rounded-xl shadow p-6 max-w-xl"
->
+<div className="bg-white rounded-xl shadow-sm border border-gray-100 p-8 max-w-lg">
 
-<div className="grid gap-4">
-
-{/* Shop Selector */}
+<div className="space-y-5">
 
 <select
-className="border rounded-lg p-3 focus:ring-2 focus:ring-green-500 outline-none"
-onChange={(e)=>fetchProducts(e.target.value)}
->
-
-<option>Select Shop</option>
-
-{shops.map((shop)=>(
-<option key={shop._id} value={shop._id}>
-{shop.shopName}
-</option>
-))}
-
-</select>
-
-
-{/* Product Selector */}
-
-<select
-className="border rounded-lg p-3 focus:ring-2 focus:ring-green-500 outline-none"
+value={productId}
 onChange={(e)=>setProductId(e.target.value)}
+className="w-full border border-gray-200 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 outline-none"
 >
 
-<option>Select Product</option>
+<option value="">Select Product</option>
 
-{products.map((product)=>(
+{products.map(product=>(
 <option key={product._id} value={product._id}>
 {product.productName}
 </option>
@@ -135,38 +81,36 @@ onChange={(e)=>setProductId(e.target.value)}
 </select>
 
 
-{/* Quantity */}
-
 <input
+type="number"
 value={quantity}
 placeholder="Quantity"
-className="border rounded-lg p-3"
 onChange={(e)=>setQuantity(e.target.value)}
+className="w-full border border-gray-200 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 outline-none"
 />
 
-
-{/* Price */}
 
 <input
+type="number"
 value={price}
-placeholder="Price"
-className="border rounded-lg p-3"
+placeholder="Cost Price"
 onChange={(e)=>setPrice(e.target.value)}
+className="w-full border border-gray-200 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 outline-none"
 />
 
-
-{/* Button */}
 
 <button
 onClick={addPurchase}
-className="bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg transition"
+className="bg-green-500 hover:bg-green-600 transition text-white px-6 py-3 rounded-lg font-medium"
 >
+
 Add Purchase
+
 </button>
 
 </div>
 
-</motion.div>
+</div>
 
 </div>
 

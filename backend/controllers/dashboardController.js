@@ -1,113 +1,115 @@
-const Shop = require("../models/Shop");
 const Product = require("../models/Product");
-const Inventory = require("../models/Inventory");
 const Sale = require("../models/Sale");
+const Purchase = require("../models/Purchase");
+const Inventory = require("../models/Inventory");
 
+// Dashboard stats
+exports.getDashboardStats = async (req, res) => {
 
-// Dashboard Stats
-exports.getDashboardStats = async (req,res)=>{
+try {
 
-try{
+const totalProducts = await Product.countDocuments({
+shopId: req.user.shopId
+});
 
-const totalShops = await Shop.countDocuments();
+const sales = await Sale.find({
+shopId: req.user.shopId
+});
 
-const totalProducts = await Product.countDocuments();
+const purchases = await Purchase.find({
+shopId: req.user.shopId
+});
 
-const totalSales = await Sale.countDocuments();
+const inventory = await Inventory.find({
+shopId: req.user.shopId
+});
 
-const inventory = await Inventory.find();
-
+let totalSales = 0;
+let totalPurchase = 0;
 let totalStock = 0;
 
-inventory.forEach(item=>{
-totalStock += item.stock;
+sales.forEach(s => {
+totalSales += s.price * s.quantity;
 });
+
+purchases.forEach(p => {
+totalPurchase += p.price * p.quantity;
+});
+
+inventory.forEach(i => {
+totalStock += i.stock;
+});
+
+const profit = totalSales - totalPurchase;
 
 res.json({
-totalShops,
 totalProducts,
+totalStock,
 totalSales,
-totalStock
+totalPurchase,
+profit
 });
 
-}
-catch(error){
+} catch (error) {
 
-res.status(500).json({error:error.message});
+res.status(500).json({ error: error.message });
 
 }
 
 };
 
 
+// Top selling products
+exports.getTopProducts = async (req, res) => {
 
-
-// Top Selling Products
-exports.getTopProducts = async(req,res)=>{
-
-try{
+try {
 
 const data = await Sale.aggregate([
-
 {
-$group:{
-_id:"$productId",
-totalSold:{ $sum:"$quantity" }
+$match: {
+shopId: req.user.shopId
 }
 },
-
 {
-$sort:{ totalSold:-1 }
-},
-
-{
-$limit:5
-},
-
-{
-$lookup:{
-from:"products",
-localField:"_id",
-foreignField:"_id",
-as:"product"
+$group: {
+_id: "$productId",
+totalSold: { $sum: "$quantity" }
 }
 },
-
 {
-$unwind:"$product"
+$sort: { totalSold: -1 }
+},
+{
+$limit: 5
 }
-
 ]);
 
 res.json(data);
 
-}
-catch(err){
+} catch (error) {
 
-res.status(500).json({error:err.message});
+res.status(500).json({ error: error.message });
 
 }
 
 };
 
 
+// Low stock
+exports.getLowStock = async (req, res) => {
 
-
-// Low Stock Alerts
-exports.getLowStock = async(req,res)=>{
-
-try{
+try {
 
 const data = await Inventory.find({
-stock:{ $lt:5 }
+shopId: req.user.shopId,
+stock: { $lt: 5 }
 }).populate("productId");
 
 res.json(data);
 
-}
-catch(err){
+} catch (error) {
 
-res.status(500).json({error:err.message});
+res.status(500).json({ error: error.message });
 
 }
 

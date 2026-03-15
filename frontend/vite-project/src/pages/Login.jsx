@@ -1,24 +1,17 @@
-import { useState } from "react";
+import {useState} from "react";
 import API from "../services/api";
-import { useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
-import { FaEnvelope, FaLock } from "react-icons/fa";
+import {useNavigate,Link} from "react-router-dom";
 
 function Login(){
 
 const [email,setEmail] = useState("");
 const [password,setPassword] = useState("");
-const [loading,setLoading] = useState(false);
-const [error,setError] = useState("");
 
 const navigate = useNavigate();
 
 const handleLogin = async(e)=>{
 
 e.preventDefault();
-
-setLoading(true);
-setError("");
 
 try{
 
@@ -28,89 +21,48 @@ localStorage.setItem("token",res.data.token);
 
 navigate("/dashboard");
 
+}catch(err){
+
+alert("Invalid login");
+
 }
-catch(err){
-
-setError("Invalid email or password");
-
-}
-
-setLoading(false);
 
 };
 
 return(
 
-<div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-blue-500 to-purple-600">
+<div className="flex items-center justify-center h-screen bg-gray-100">
 
-<motion.form
-initial={{opacity:0,y:40}}
-animate={{opacity:1,y:0}}
-transition={{duration:0.6}}
-onSubmit={handleLogin}
-className="bg-white/90 backdrop-blur-lg p-8 rounded-xl shadow-xl w-full max-w-md"
->
+<form onSubmit={handleLogin} className="bg-white p-8 rounded shadow w-96">
 
-<h2 className="text-3xl font-bold text-center mb-6 text-gray-800">
-Login
-</h2>
-
-{/* Error message */}
-
-{error && (
-<p className="text-red-500 text-center mb-4">
-{error}
-</p>
-)}
-
-{/* Email */}
-
-<div className="flex items-center border rounded-lg p-3 mb-4">
-
-<FaEnvelope className="text-gray-500 mr-3"/>
+<h2 className="text-2xl font-bold mb-4">Shop Login</h2>
 
 <input
 type="email"
 placeholder="Email"
-className="w-full outline-none"
+className="border p-2 w-full mb-3"
 onChange={(e)=>setEmail(e.target.value)}
-required
 />
-
-</div>
-
-{/* Password */}
-
-<div className="flex items-center border rounded-lg p-3 mb-6">
-
-<FaLock className="text-gray-500 mr-3"/>
 
 <input
 type="password"
 placeholder="Password"
-className="w-full outline-none"
+className="border p-2 w-full mb-3"
 onChange={(e)=>setPassword(e.target.value)}
-required
 />
 
-</div>
-
-{/* Button */}
-
-<button
-disabled={loading}
-className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg transition duration-300"
->
-
-{loading ? "Logging in..." : "Login"}
-
+<button className="bg-blue-600 text-white p-2 w-full rounded">
+Login
 </button>
 
-<p className="text-center text-gray-500 mt-4 text-sm">
-Inventory Management System
+<p className="text-sm mt-3 text-center">
+
+New shop?  
+<Link to="/register" className="text-blue-600">Create account</Link>
+
 </p>
 
-</motion.form>
+</form>
 
 </div>
 

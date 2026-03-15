@@ -1,24 +1,42 @@
 const Inventory = require("../models/Inventory");
-const Product = require("../models/Product");
+const Purchase = require("../models/Purchase");
 
-
-// GET INVENTORY BY SHOP
 exports.getInventory = async (req,res)=>{
 
-    try{
+try{
 
-        const {shopId} = req.params;
+const inventory = await Inventory.find({
+shopId:req.user.shopId
+}).populate("productId","productName category");
 
-        const inventory = await Inventory.find({shopId})
-        .populate("productId","productName category price");
+const data = await Promise.all(
 
-        res.json(inventory);
+inventory.map(async(item)=>{
 
-    }
-    catch(error){
+// latest purchase price
+const purchase = await Purchase.findOne({
+productId:item.productId._id,
+shopId:req.user.shopId
+}).sort({date:-1});
 
-        res.status(500).json({error:error.message});
+return{
+_id:item._id,
+productName:item.productId.productName,
+category:item.productId.category,
+stock:item.stock,
+price: purchase ? purchase.price : 0
+};
 
-    }
+})
+
+);
+
+res.json(data);
+
+}catch(error){
+
+res.status(500).json({error:error.message});
+
+}
 
 };
