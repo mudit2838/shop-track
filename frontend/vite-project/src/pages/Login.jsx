@@ -17,9 +17,11 @@ try{
 
 const res = await API.post("/auth/login",{email,password});
 
+// save token
 localStorage.setItem("token",res.data.token);
 
-navigate("/dashboard");
+// force reload so interceptor + protected routes detect token
+window.location.href="/dashboard";
 
 }catch(err){
 

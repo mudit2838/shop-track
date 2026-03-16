@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const API = axios.create({
-  baseURL: "http://localhost:5000/api"
+  baseURL: "https://stock-managment-2-nby8.onrender.com/api",
 });
 
 // attach token automatically
