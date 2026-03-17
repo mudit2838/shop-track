@@ -27,14 +27,16 @@ res.status(500).json({error:err.message});
 };
 
 
-
-// GET PRODUCTS
+// GET PRODUCTS (with search support)
 exports.getProducts = async (req,res)=>{
 
 try{
 
+const search = req.query.search || "";
+
 const products = await Product.find({
-shopId:req.user.shopId
+shopId:req.user.shopId,
+productName: { $regex: search, $options: "i" }
 });
 
 res.json(products);
