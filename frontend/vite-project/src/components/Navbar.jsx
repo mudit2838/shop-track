@@ -1,107 +1,109 @@
 import { FaBars, FaUserCircle, FaSignOutAlt } from "react-icons/fa";
-import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import API from "../services/api";
+import { motion } from "framer-motion";
 
-function Navbar({toggleSidebar}){
+function Navbar({ toggleSidebar }) {
 
-const navigate = useNavigate();
+    const navigate = useNavigate();
 
-const [shopName,setShopName] = useState("");
+    const [shopName, setShopName] = useState("");
 
-useEffect(()=>{
+    useEffect(() => {
 
-fetchUser();
+        fetchUser();
 
-},[]);
+    }, []);
 
-const fetchUser = async()=>{
+    const fetchUser = async () => {
 
-try{
+        try {
 
-const res = await API.get("/auth/me");
+            const res = await API.get("/auth/me");
 
-setShopName(res.data.shopName);
+            setShopName(res.data.shopName);
 
-}catch(err){
+        } catch (err) {
 
-console.log(err);
+            console.log(err);
 
-}
+        }
 
-};
+    };
 
-const handleLogout = ()=>{
+    const handleLogout = () => {
 
-localStorage.removeItem("token");
+        localStorage.removeItem("token");
 
-navigate("/");
+        navigate("/");
 
-};
+    };
 
-return(
+    return (
 
-<motion.div
-initial={{opacity:0,y:-20}}
-animate={{opacity:1,y:0}}
-className="flex justify-between items-center bg-white shadow px-6 py-4"
->
+        <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="flex justify-between items-center bg-white shadow-soft px-6 py-4 z-10 sticky top-0"
+        >
 
-{/* Left Section */}
+            {/* Left Section */}
 
-<div className="flex items-center gap-4">
+            <div className="flex items-center gap-4">
 
-<button
-className="md:hidden text-xl"
-onClick={toggleSidebar}
->
+                <button
+                    className="md:hidden text-xl text-slate-500 hover:text-brand-600 transition-colors"
+                    onClick={toggleSidebar}
+                >
 
-<FaBars/>
+                    <FaBars />
 
-</button>
+                </button>
 
-<h1 className="text-xl font-bold text-gray-700">
-Inventory Dashboard
-</h1>
+                <h1 className="text-xl font-bold text-slate-800 tracking-tight hidden sm:block">
+                    Inventory Dashboard
+                </h1>
 
-</div>
+            </div>
 
 
-{/* Right Section */}
+            {/* Right Section */}
 
-<div className="flex items-center gap-4">
+            <div className="flex items-center gap-6">
 
-<div className="flex items-center gap-2 text-gray-600">
+                <div className="flex items-center gap-2 text-slate-600">
 
-<FaUserCircle className="text-2xl"/>
+                    <FaUserCircle className="text-2xl text-brand-500" />
 
-<span className="hidden md:block font-medium">
+                    <span className="hidden md:block font-medium">
 
-{shopName || "Shop"}
+                        {shopName || "Shop"}
 
-</span>
+                    </span>
 
-</div>
+                </div>
 
-<button
-onClick={handleLogout}
-className="flex items-center gap-2 text-red-500 hover:text-red-700"
->
+                <div className="h-6 w-px bg-slate-200 hidden sm:block"></div>
 
-<FaSignOutAlt/>
+                <button
+                    onClick={handleLogout}
+                    className="flex items-center gap-2 text-slate-500 hover:text-red-600 transition-colors font-medium"
+                >
 
-<span className="hidden md:block">
-Logout
-</span>
+                    <FaSignOutAlt />
 
-</button>
+                    <span className="hidden md:block">
+                        Logout
+                    </span>
 
-</div>
+                </button>
 
-</motion.div>
+            </div>
 
-);
+        </motion.div>
+
+    );
 
 }
 

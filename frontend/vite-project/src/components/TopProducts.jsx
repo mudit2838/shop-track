@@ -1,51 +1,52 @@
-import { useEffect,useState } from "react";
+import { useEffect, useState } from "react";
 import API from "../services/api";
 
-function TopProducts(){
+function TopProducts() {
 
-const [products,setProducts] = useState([]);
+    const [products, setProducts] = useState([]);
 
-useEffect(()=>{
-fetchProducts();
-},[]);
+    useEffect(() => {
+        fetchProducts();
+    }, []);
 
-const fetchProducts = async()=>{
+    const fetchProducts = async () => {
+        try {
+            const res = await API.get("/dashboard/top-products");
+            setProducts(res.data || []);
+        } catch (error) {
+            console.error("Failed to fetch top products:", error);
+        }
+    };
 
-const res = await API.get("/dashboard/top-products");
+    return (
 
-setProducts(res.data);
+        <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 flex flex-col h-full">
 
-};
+            <h2 className="font-bold text-lg mb-6 text-slate-800 flex items-center gap-2">
+                <span className="w-2.5 h-2.5 rounded-full bg-brand-500"></span> Top Selling
+            </h2>
 
-return(
+            <ul className="space-y-4">
 
-<div className="bg-white rounded-xl shadow p-6">
+                {products.map((p, index) => (
+                    <li key={index} className="flex justify-between items-center group">
 
-<h2 className="font-bold mb-4">
-Top Selling Products
-</h2>
+                        <span className="font-medium text-slate-700 group-hover:text-brand-600 transition-colors">
+                            {p.product?.productName || p.productName || `Product ${String(p._id).substring(0, 6)}`}
+                        </span>
 
-<ul className="space-y-3">
+                        <span className="font-bold text-brand-700 bg-brand-50 px-2.5 py-0.5 rounded-md text-sm">
+                            {p.totalSold}
+                        </span>
 
-{products.map((p,index)=>(
-<li key={index} className="flex justify-between">
+                    </li>
+                ))}
 
-<span>
-{p.product.productName}
-</span>
+            </ul>
 
-<span className="font-bold text-blue-500">
-{p.totalSold}
-</span>
+        </div>
 
-</li>
-))}
-
-</ul>
-
-</div>
-
-)
+    )
 
 }
 
